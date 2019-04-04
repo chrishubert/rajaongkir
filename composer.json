@@ -1,5 +1,5 @@
 {
-  "name": "steevenz/rajaongkir",
+  "name": "chrishubert/rajaongkir",
   "description": "Advanced RajaOngkir API PHP Class",
   "license": "MIT",
   "type": "php-class",
@@ -17,11 +17,11 @@
   ],
   "support": {
     "email": "steevenz@steevenz.com",
-    "issues": "https://github.com/steevenz/rajaongkir/issues"
+    "issues": "https://github.com/chrishubert/rajaongkir/issues"
   },
   "links": {
-    "info": "https://github.com/steevenz/rajaongkir",
-    "wiki": "https://github.com/steevenz/rajaongkir/wiki"
+    "info": "https://github.com/chrishubert/rajaongkir",
+    "wiki": "https://github.com/chrishubert/rajaongkir/wiki"
   },
   "require": {
     "php": ">=5.6.0",
