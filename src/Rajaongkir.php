@@ -2,30 +2,24 @@
 /**
  * Advanced RajaOngkir API PHP Library
  *
- * MIT License
+ * Copyright (C) 2018  Steeve Andrian Salim (steevenz)
  *
- * Copyright (c) 2018 Steeve Andrian Salim
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) 2018, Steeve Andrian Salim
+ * @since          Version 2.0.0
  * @filesource
  */
 
@@ -35,9 +29,7 @@ namespace Steevenz;
 
 // ------------------------------------------------------------------------
 
-use O2System\Curl;
-use O2System\Kernel\Http\Message\Uri;
-use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
+use GuzzleHttp\Client;
 
 /**
  * Class Rajaongkir
@@ -45,8 +37,6 @@ use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
  */
 class Rajaongkir
 {
-    use ErrorCollectorTrait;
-
     /**
      * Constant Account Type
      *
@@ -101,7 +91,7 @@ class Rajaongkir
             'pos',
             'tiki',
         ],
-        'basic'   => [
+        'basic' => [
             'jne',
             'pos',
             'tiki',
@@ -109,8 +99,8 @@ class Rajaongkir
             'esl',
             'rpx',
         ],
-        'pro'     => [
-                        'jne',
+        'pro' => [
+            'jne',
             'pos',
             'tiki',
             'rpx',
@@ -131,9 +121,6 @@ class Rajaongkir
             'first',
             'ncs',
             'star',
-            'ninja',
-            'lion',
-            'idl',
         ],
     ];
 
@@ -147,10 +134,10 @@ class Rajaongkir
      */
     protected $supportedWayBills = [
         'starter' => [],
-        'basic'   => [
+        'basic' => [
             'jne',
         ],
-        'pro'     => [
+        'pro' => [
             'jne',
             'pos',
             'tiki',
@@ -175,27 +162,27 @@ class Rajaongkir
      * @type array
      */
     protected $couriersList = [
-        'jne'       => 'Jalur Nugraha Ekakurir (JNE)',
-        'pos'       => 'POS Indonesia (POS)',
-        'tiki'      => 'Citra Van Titipan Kilat (TIKI)',
-        'pcp'       => 'Priority Cargo and Package (PCP)',
-        'esl'       => 'Eka Sari Lorena (ESL)',
-        'rpx'       => 'RPX Holding (RPX)',
-        'pandu'     => 'Pandu Logistics (PANDU)',
-        'wahana'    => 'Wahana Prestasi Logistik (WAHANA)',
-        'sicepat'   => 'SiCepat Express (SICEPAT)',
-        'j&t'       => 'J&T Express (J&T)',
-        'pahala'    => 'Pahala Kencana Express (PAHALA)',
-        'cahaya'    => 'Cahaya Logistik (CAHAYA)',
-        'sap'       => 'SAP Express (SAP)',
-        'jet'       => 'JET Express (JET)',
-        'indah'     => 'Indah Logistic (INDAH)',
-        'slis'      => 'Solusi Express (SLIS)',
+        'jne' => 'Jalur Nugraha Ekakurir (JNE)',
+        'pos' => 'POS Indonesia (POS)',
+        'tiki' => 'Citra Van Titipan Kilat (TIKI)',
+        'pcp' => 'Priority Cargo and Package (PCP)',
+        'esl' => 'Eka Sari Lorena (ESL)',
+        'rpx' => 'RPX Holding (RPX)',
+        'pandu' => 'Pandu Logistics (PANDU)',
+        'wahana' => 'Wahana Prestasi Logistik (WAHANA)',
+        'sicepat' => 'SiCepat Express (SICEPAT)',
+        'j&t' => 'J&T Express (J&T)',
+        'pahala' => 'Pahala Kencana Express (PAHALA)',
+        'cahaya' => 'Cahaya Logistik (CAHAYA)',
+        'sap' => 'SAP Express (SAP)',
+        'jet' => 'JET Express (JET)',
+        'indah' => 'Indah Logistic (INDAH)',
+        'slis' => 'Solusi Express (SLIS)',
         'expedito*' => 'Expedito*',
-        'dse'       => '21 Express (DSE)',
-        'first'     => 'First Logistics (FIRST)',
-        'ncs'       => 'Nusantara Card Semesta (NCS)',
-        'star'      => 'Star Cargo (STAR)',
+        'dse' => '21 Express (DSE)',
+        'first' => 'First Logistics (FIRST)',
+        'ncs' => 'Nusantara Card Semesta (NCS)',
+        'star' => 'Star Cargo (STAR)',
     ];
 
     /**
@@ -207,6 +194,16 @@ class Rajaongkir
      * @type    mixed
      */
     protected $response;
+
+    /**
+     * Rajaongkir::$errors
+     *
+     * Rajaongkir errors.
+     *
+     * @access  protected
+     * @type    mixed
+     */
+    protected $errors;
 
     // ------------------------------------------------------------------------
 
@@ -220,12 +217,12 @@ class Rajaongkir
     {
         if (isset($apiKey)) {
             if (is_array($apiKey)) {
-                if (isset($apiKey[ 'api_key' ])) {
-                    $this->apiKey = $apiKey[ 'api_key' ];
+                if (isset($apiKey['api_key'])) {
+                    $this->apiKey = $apiKey['api_key'];
                 }
 
-                if (isset($apiKey[ 'account_type' ])) {
-                    $accountType = $apiKey[ 'account_type' ];
+                if (isset($apiKey['account_type'])) {
+                    $accountType = $apiKey['account_type'];
                 }
             } elseif (is_string($apiKey)) {
                 $this->apiKey = $apiKey;
@@ -290,7 +287,7 @@ class Rajaongkir
      * Curl request API caller.
      *
      * @param string $path
-     * @param array  $params
+     * @param array $params
      * @param string $type
      *
      * @access  protected
@@ -316,53 +313,55 @@ class Rajaongkir
                 break;
         }
 
-        $uri = (new Uri($apiUrl))->withPath($path);
-        $request = new Curl\Request();
-        $request->setHeaders([
-            'key' => $this->apiKey,
-        ]);
+        $uri = $apiUrl . '/' . $path;
+        $client = new Client();
 
-        switch ($type) {
-            default:
-            case 'GET':
-                $this->response = $request->setUri($uri)->get($params);
-                break;
+        try {
+            switch ($type) {
+                default:
+                case 'GET':
+                    $response = $client->request('GET', $uri, [
+                        'headers' => ['key' => $this->apiKey,],
+                        'query' => $params
+                    ]);
+                    break;
 
-            case 'POST':
-                $request->addHeader('content-type', 'application/x-www-form-urlencoded');
-                $this->response = $request->setUri($uri)->post($params);
-                break;
-        }
-
-        // Try to get curl error
-        if (false !== ($error = $this->response->getError())) {
-            $this->addErrors($error->getArrayCopy());
-        } else {
-            $body = $this->response->getBody();
-
-            if ($body instanceof \DOMDocument) {
-                $this->errors[ 404 ] = 'Page Not Found!';
-            } else {
-                $body = $body->rajaongkir;
-                $status = $body[ 'status' ];
-
-                if ($status[ 'code' ] == 200) {
-                    if (isset($body[ 'results' ])) {
-                        if (count($body[ 'results' ]) == 1 && isset($body[ 'results' ][ 0 ])) {
-                            return $body[ 'results' ][ 0 ];
-                        } elseif (count($body[ 'results' ])) {
-                            return $body[ 'results' ];
-                        }
-                    } elseif (isset($body[ 'result' ])) {
-                        return $body[ 'result' ];
-                    }
-                } else {
-                    $this->errors[ $status[ 'code' ] ] = $status[ 'description' ];
-                }
+                case 'POST':
+                    $response = $client->request('POST', $uri, [
+                        'headers' => ['key' => $this->apiKey,],
+                        'form_params' => $params
+                    ]);
+                    break;
             }
-        }
 
-        return false;
+            if ($response->getStatusCode() !== 200) {
+                $this->errors[$response->getStatusCode()] = $response->getReasonPhrase();
+                return false;
+            }
+
+            $body = json_decode((string)$response->getBody(), true);
+            $body = (array)$body['rajaongkir'];
+            $status = $body['status'];
+
+            if ($status['code'] == 200) {
+                if (isset($body['results'])) {
+                    if (count($body['results']) == 1 && isset($body['results'][0])) {
+                        return $body['results'][0];
+                    } elseif (count($body['results'])) {
+                        return $body['results'];
+                    }
+                } elseif (isset($body['result'])) {
+                    return $body['result'];
+                }
+            } else {
+                $this->errors[$status['code']] = $status['description'];
+                return false;
+            }
+
+        } catch (\Exception $e) {
+            $this->errors[$e->getCode()] = $e->getMessage();
+            return false;
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -428,8 +427,8 @@ class Rajaongkir
     {
         $params = [];
 
-        if ( ! is_null($idProvince)) {
-            $params[ 'province' ] = $idProvince;
+        if (!is_null($idProvince)) {
+            $params['province'] = $idProvince;
         }
 
         return $this->request('city', $params);
@@ -467,12 +466,10 @@ class Rajaongkir
     public function getSubdistricts($idCity)
     {
         if ($this->accountType === 'starter') {
-            $this->errors[ 302 ] = 'Unsupported Subdistricts Request. Tipe akun starter tidak mendukung hingga tingkat kecamatan.';
-
+            $this->errors[302] = 'Unsupported Subdistricts Request. Tipe akun starter tidak mendukung hingga tingkat kecamatan.';
             return false;
         } elseif ($this->accountType === 'basic') {
-            $this->errors[ 302 ] = 'Unsupported Subdistricts Request. Tipe akun basic tidak mendukung hingga tingkat kecamatan.';
-
+            $this->errors[302] = 'Unsupported Subdistricts Request. Tipe akun basic tidak mendukung hingga tingkat kecamatan.';
             return false;
         }
 
@@ -494,11 +491,11 @@ class Rajaongkir
     public function getSubdistrict($idSubdistrict)
     {
         if ($this->accountType === 'starter') {
-            $this->errors[ 302 ] = 'Unsupported Subdistricts Request. Tipe akun starter tidak mendukung hingga tingkat kecamatan.';
+            $this->errors[302] = 'Unsupported Subdistricts Request. Tipe akun starter tidak mendukung hingga tingkat kecamatan.';
 
             return false;
         } elseif ($this->accountType === 'basic') {
-            $this->errors[ 302 ] = 'Unsupported Subdistricts Request. Tipe akun basic tidak mendukung hingga tingkat kecamatan.';
+            $this->errors[302] = 'Unsupported Subdistricts Request. Tipe akun basic tidak mendukung hingga tingkat kecamatan.';
 
             return false;
         }
@@ -521,7 +518,7 @@ class Rajaongkir
     public function getInternationalOrigins($idProvince = null)
     {
         if ($this->accountType === 'starter') {
-            $this->errors[ 301 ] = 'Unsupported International Origin Request. Tipe akun starter tidak mendukung tingkat international.';
+            $this->errors[301] = 'Unsupported International Origin Request. Tipe akun starter tidak mendukung tingkat international.';
 
             return false;
         }
@@ -529,7 +526,7 @@ class Rajaongkir
         $params = [];
 
         if (isset($idProvince)) {
-            $params[ 'province' ] = $idProvince;
+            $params['province'] = $idProvince;
         }
 
         return $this->request('v2/internationalOrigin', $params);
@@ -542,7 +539,7 @@ class Rajaongkir
      *
      * Get list of supported international origins by city and province.
      *
-     * @param   int $idCity     City ID
+     * @param   int $idCity City ID
      * @param   int $idProvince Province ID
      *
      * @access  public
@@ -551,17 +548,17 @@ class Rajaongkir
     public function getInternationalOrigin($idCity = null, $idProvince = null)
     {
         if ($this->accountType === 'starter') {
-            $this->errors[ 301 ] = 'Unsupported International Origin Request. Tipe akun starter tidak mendukung tingkat international.';
+            $this->errors[301] = 'Unsupported International Origin Request. Tipe akun starter tidak mendukung tingkat international.';
 
             return false;
         }
 
         if (isset($idCity)) {
-            $params[ 'id' ] = $idCity;
+            $params['id'] = $idCity;
         }
 
         if (isset($idProvince)) {
-            $params[ 'province' ] = $idProvince;
+            $params['province'] = $idProvince;
         }
 
         return $this->request('v2/internationalOrigin', $params);
@@ -582,7 +579,7 @@ class Rajaongkir
     public function getInternationalDestinations()
     {
         if ($this->accountType === 'starter') {
-            $this->errors[ 301 ] = 'Unsupported International Destination Request. Tipe akun starter tidak mendukung tingkat international.';
+            $this->errors[301] = 'Unsupported International Destination Request. Tipe akun starter tidak mendukung tingkat international.';
 
             return false;
         }
@@ -605,7 +602,7 @@ class Rajaongkir
     public function getInternationalDestination($idCountry = null)
     {
         if ($this->accountType === 'starter') {
-            $this->errors[ 301 ] = 'Unsupported International Destination Request. Tipe akun starter tidak mendukung tingkat international.';
+            $this->errors[301] = 'Unsupported International Destination Request. Tipe akun starter tidak mendukung tingkat international.';
 
             return false;
         }
@@ -613,7 +610,7 @@ class Rajaongkir
         $params = [];
 
         if (isset($idCountry)) {
-            $params[ 'id' ] = $idCountry;
+            $params['id'] = $idCountry;
         }
 
         return $this->request('v2/internationalDestination', $params);
@@ -636,89 +633,89 @@ class Rajaongkir
      *
      * @see      http://rajaongkir.com/dokumentasi/pro
      *
-     * @param array  $origin            City, District or Subdistrict Origin
-     * @param array  $destination       City, District or Subdistrict Destination
-     * @param array  $metrics           Array of Specification
+     * @param array $origin City, District or Subdistrict Origin
+     * @param array $destination City, District or Subdistrict Destination
+     * @param array $metrics Array of Specification
      *                                  weight      int     weight in gram (required)
      *                                  length      number  package length dimension
      *                                  width       number  package width dimension
      *                                  height      number  package height dimension
      *                                  diameter    number  package diameter
-     * @param string $courier           Courier Code
+     * @param string $courier Courier Code
      *
      * @access   public
      * @return  array|bool Returns FALSE if failed.
      */
     public function getCost(array $origin, array $destination, $metrics, $courier)
     {
-        $params[ 'courier' ] = strtolower($courier);
+        $params['courier'] = strtolower($courier);
 
-        $params[ 'originType' ] = strtolower(key($origin));
-        $params[ 'destinationType' ] = strtolower(key($destination));
+        $params['originType'] = strtolower(key($origin));
+        $params['destinationType'] = strtolower(key($destination));
 
-        if ($params[ 'originType' ] !== 'city') {
-            $params[ 'originType' ] = 'subdistrict';
+        if ($params['originType'] !== 'city') {
+            $params['originType'] = 'subdistrict';
         }
 
-        if ( ! in_array($params[ 'destinationType' ], ['city', 'country'])) {
-            $params[ 'destinationType' ] = 'subdistrict';
+        if (!in_array($params['destinationType'], ['city', 'country'])) {
+            $params['destinationType'] = 'subdistrict';
         }
 
         if (is_array($metrics)) {
-            if ( ! isset($metrics[ 'weight' ]) AND
-                isset($metrics[ 'length' ]) AND
-                isset($metrics[ 'width' ]) AND
-                isset($metrics[ 'height' ])
+            if (!isset($metrics['weight']) AND
+                isset($metrics['length']) AND
+                isset($metrics['width']) AND
+                isset($metrics['height'])
             ) {
-                $metrics[ 'weight' ] = (($metrics[ 'length' ] * $metrics[ 'width' ] * $metrics[ 'height' ]) / 6000) * 1000;
-            } elseif (isset($metrics[ 'weight' ]) AND
-                isset($metrics[ 'length' ]) AND
-                isset($metrics[ 'width' ]) AND
-                isset($metrics[ 'height' ])
+                $metrics['weight'] = (($metrics['length'] * $metrics['width'] * $metrics['height']) / 6000) * 1000;
+            } elseif (isset($metrics['weight']) AND
+                isset($metrics['length']) AND
+                isset($metrics['width']) AND
+                isset($metrics['height'])
             ) {
-                $weight = (($metrics[ 'length' ] * $metrics[ 'width' ] * $metrics[ 'height' ]) / 6000) * 1000;
+                $weight = (($metrics['length'] * $metrics['width'] * $metrics['height']) / 6000) * 1000;
 
-                if ($weight > $metrics[ 'weight' ]) {
-                    $metrics[ 'weight' ] = $weight;
+                if ($weight > $metrics['weight']) {
+                    $metrics['weight'] = $weight;
                 }
             }
 
             foreach ($metrics as $key => $value) {
-                $params[ $key ] = $value;
+                $params[$key] = $value;
             }
         } elseif (is_numeric($metrics)) {
-            $params[ 'weight' ] = $metrics;
+            $params['weight'] = $metrics;
         }
 
         switch ($this->accountType) {
             case 'starter':
 
-                if ($params[ 'destinationType' ] === 'country') {
-                    $this->errors[ 301 ] = 'Unsupported International Destination. Tipe akun starter tidak mendukung pengecekan destinasi international.';
+                if ($params['destinationType'] === 'country') {
+                    $this->errors[301] = 'Unsupported International Destination. Tipe akun starter tidak mendukung pengecekan destinasi international.';
 
                     return false;
-                } elseif ($params[ 'originType' ] === 'subdistrict' OR $params[ 'destinationType' ] === 'subdistrict') {
-                    $this->errors[ 302 ] = 'Unsupported Subdistrict Origin-Destination. Tipe akun starter tidak mendukung pengecekan ongkos kirim sampai kecamatan.';
+                } elseif ($params['originType'] === 'subdistrict' OR $params['destinationType'] === 'subdistrict') {
+                    $this->errors[302] = 'Unsupported Subdistrict Origin-Destination. Tipe akun starter tidak mendukung pengecekan ongkos kirim sampai kecamatan.';
 
                     return false;
                 }
 
-                if ( ! isset($params[ 'weight' ]) AND
-                    isset($params[ 'length' ]) AND
-                    isset($params[ 'width' ]) AND
-                    isset($params[ 'height' ])
+                if (!isset($params['weight']) AND
+                    isset($params['length']) AND
+                    isset($params['width']) AND
+                    isset($params['height'])
                 ) {
-                    $this->errors[ 304 ] = 'Unsupported Dimension. Tipe akun starter tidak mendukung pengecekan biaya kirim berdasarkan dimensi.';
+                    $this->errors[304] = 'Unsupported Dimension. Tipe akun starter tidak mendukung pengecekan biaya kirim berdasarkan dimensi.';
 
                     return false;
-                } elseif (isset($params[ 'weight' ]) AND $params[ 'weight' ] > 30000) {
-                    $this->errors[ 305 ] = 'Unsupported Weight. Tipe akun starter tidak mendukung pengecekan biaya kirim dengan berat lebih dari 30000 gram (30kg).';
+                } elseif (isset($params['weight']) AND $params['weight'] > 30000) {
+                    $this->errors[305] = 'Unsupported Weight. Tipe akun starter tidak mendukung pengecekan biaya kirim dengan berat lebih dari 30000 gram (30kg).';
 
                     return false;
                 }
 
-                if ( ! in_array($params[ 'courier' ], $this->supportedCouriers[ $this->accountType ])) {
-                    $this->errors[ 303 ] = 'Unsupported Courier. Tipe akun starter tidak mendukung pengecekan biaya kirim dengan kurir ' . $this->couriersList[ $courier ] . '.';
+                if (!in_array($params['courier'], $this->supportedCouriers[$this->accountType])) {
+                    $this->errors[303] = 'Unsupported Courier. Tipe akun starter tidak mendukung pengecekan biaya kirim dengan kurir ' . $this->couriersList[$courier] . '.';
 
                     return false;
                 }
@@ -727,39 +724,38 @@ class Rajaongkir
 
             case 'basic':
 
-                if ($params[ 'originType' ] === 'subdistrict' OR $params[ 'destinationType' ] === 'subdistrict') {
-                    $this->errors[ 302 ] = 'Unsupported Subdistrict Origin-Destination. Tipe akun basic tidak mendukung pengecekan ongkos kirim sampai kecamatan.';
+                if ($params['originType'] === 'subdistrict' OR $params['destinationType'] === 'subdistrict') {
+                    $this->errors[302] = 'Unsupported Subdistrict Origin-Destination. Tipe akun basic tidak mendukung pengecekan ongkos kirim sampai kecamatan.';
 
                     return false;
                 }
 
-                if ( ! isset($params[ 'weight' ]) AND
-                    isset($params[ 'length' ]) AND
-                    isset($params[ 'width' ]) AND
-                    isset($params[ 'height' ])
+                if (!isset($params['weight']) AND
+                    isset($params['length']) AND
+                    isset($params['width']) AND
+                    isset($params['height'])
                 ) {
-                    $this->errors[ 304 ] = 'Unsupported Dimension. Tipe akun basic tidak mendukung pengecekan biaya kirim berdasarkan dimensi.';
+                    $this->errors[304] = 'Unsupported Dimension. Tipe akun basic tidak mendukung pengecekan biaya kirim berdasarkan dimensi.';
 
                     return false;
-                } elseif (isset($params[ 'weight' ]) AND $params[ 'weight' ] > 30000) {
-                    $this->errors[ 305 ] = 'Unsupported Weight. Tipe akun basic tidak mendukung pengecekan biaya kirim dengan berat lebih dari 30000 gram (30kg).';
+                } elseif (isset($params['weight']) AND $params['weight'] > 30000) {
+                    $this->errors[305] = 'Unsupported Weight. Tipe akun basic tidak mendukung pengecekan biaya kirim dengan berat lebih dari 30000 gram (30kg).';
 
                     return false;
-                } elseif (isset($params[ 'weight' ]) AND $params[ 'weight' ] < 30000) {
-                    unset($params[ 'length' ], $params[ 'width' ], $params[ 'height' ]);
+                } elseif (isset($params['weight']) AND $params['weight'] < 30000) {
+                    unset($params['length'], $params['width'], $params['height']);
                 }
 
-                if ( ! in_array($params[ 'courier' ], $this->supportedCouriers[ $this->accountType ])) {
-                    $this->errors[ 303 ] = 'Unsupported Courier. Tipe akun basic tidak mendukung pengecekan biaya kirim dengan kurir ' . $this->couriersList[ $courier ] . '.';
-
+                if (!in_array($params['courier'], $this->supportedCouriers[$this->accountType])) {
+                    $this->errors[303] = 'Unsupported Courier. Tipe akun basic tidak mendukung pengecekan biaya kirim dengan kurir ' . $this->couriersList[$courier] . '.';
                     return false;
                 }
 
                 break;
         }
 
-        $params[ 'origin' ] = $origin[ key($origin) ];
-        $params[ 'destination' ] = $destination[ key($destination) ];
+        $params['origin'] = $origin[key($origin)];
+        $params['destination'] = $destination[key($destination)];
 
         $path = key($destination) === 'country' ? 'internationalCost' : 'cost';
 
@@ -773,8 +769,8 @@ class Rajaongkir
      *
      * Get detail of waybill.
      *
-     * @param   int         $idWaybill Receipt ID
-     * @param   null|string $courier   Courier Code
+     * @param   int $idWaybill Receipt ID
+     * @param   null|string $courier Courier Code
      *
      * @access  public
      * @return  array|bool Returns FALSE if failed.
@@ -783,9 +779,9 @@ class Rajaongkir
     {
         $courier = strtolower($courier);
 
-        if (in_array($courier, $this->supportedWayBills[ $this->accountType ])) {
+        if (in_array($courier, $this->supportedWayBills[$this->accountType])) {
             return $this->request('waybill', [
-                'key'     => $this->apiKey,
+                'key' => $this->apiKey,
                 'waybill' => $idWaybill,
                 'courier' => $courier,
             ], 'POST');
@@ -810,7 +806,7 @@ class Rajaongkir
             return $this->request('currency');
         }
 
-        $this->errors[ 301 ] = 'Unsupported Get Currency. Tipe akun starter tidak mendukung pengecekan currency.';
+        $this->errors[301] = 'Unsupported Get Currency. Tipe akun starter tidak mendukung pengecekan currency.';
 
         return false;
     }
@@ -826,7 +822,7 @@ class Rajaongkir
      */
     public function getSupportedCouriers()
     {
-        if(isset($this->supportedCouriers[$this->accountType])) {
+        if (isset($this->supportedCouriers[$this->accountType])) {
             return $this->supportedCouriers[$this->accountType];
         }
 
@@ -844,27 +840,10 @@ class Rajaongkir
      */
     public function getSupportedWayBills()
     {
-        if(isset($this->supportedWayBills[$this->accountType])) {
+        if (isset($this->supportedWayBills[$this->accountType])) {
             return $this->supportedWayBills[$this->accountType];
         }
 
         return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Rajaongkir::getResponse
-     *
-     * Get original response object.
-     *
-     * @param   string $offset Response Offset Object
-     *
-     * @access  public
-     * @return  \O2System\Curl\Response|bool Returns FALSE if failed.
-     */
-    public function getResponse()
-    {
-        return $this->response;
     }
 }
