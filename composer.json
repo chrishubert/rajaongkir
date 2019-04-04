@@ -25,7 +25,7 @@
   },
   "require": {
     "php": ">=5.6.0",
-    "o2system/curl": "*"
+    "guzzlehttp/guzzle": "^6.3"
   },
   "autoload": {
     "files": [
