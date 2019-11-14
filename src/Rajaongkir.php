@@ -203,7 +203,7 @@ class Rajaongkir
      * @access  protected
      * @type    mixed
      */
-    protected $errors;
+    public $errors;
 
     // ------------------------------------------------------------------------
 
